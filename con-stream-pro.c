@@ -29,6 +29,11 @@ main()
 //Parent finds first prime
 //Eliminates all numbers after that are a multiple of that first number
 //Passes new list to child process.
+void
+pass_list()
+{
+  //Use this function to pass the list to the next child.
+}
 
 //Terminate Gracefully
 
