@@ -12,14 +12,27 @@
 #include <stdio.h>
 #include <string.h>
 
+// GLOBALS
+
+
+//PROTOTYPES
+
+
+
 
 //Args
 // show the fist 'K' primes
 // Show all primes from 2 to a limit
 int
-main()
+main(int argc, char *argv[])
 {
-  puts("Hello World");
+  int i = 0;
+  printf("Total Number of Args: %d\n", argc);
+  while(i < argc)
+    {
+      printf("Args%d: %s\n", i, argv[i]);
+      i++;
+    }
   return 0;
 }
 
