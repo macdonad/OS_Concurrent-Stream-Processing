@@ -13,7 +13,7 @@
 #include <string.h>
 
 // GLOBALS
-
+int pid = 0;
 
 //PROTOTYPES
 
@@ -43,10 +43,38 @@ main(int argc, char *argv[])
 //Eliminates all numbers after that are a multiple of that first number
 //Passes new list to child process.
 void
-pass_list()
+read_list()
 {
   //Use this function to pass the list to the next child.
+  //if child read from pipe
 }
+
+void 
+write_list()
+{
+  //if parent write list to pipe
+}
+
+//Set up pipes with parent and child
+void 
+connect_pipes()
+{
+  if(pid < 0)
+    {
+      //error
+    }
+  else if (pid = 0)
+    {
+      //set up child's connection
+      read_list();
+    }
+  else if (pid > 0)
+    {
+      //set up Parent connection
+      write_list();
+    }
+}
+
 
 //Terminate Gracefully
 
