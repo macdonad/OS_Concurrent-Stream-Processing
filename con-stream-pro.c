@@ -98,7 +98,7 @@ generate_limit(int limit)
   print_header();
   pid = getpid();
   print_prime(pid, 2);
-  print_status(pid, "help");
+  print_status(pid, "Found Prime");
 }
 
 //Print Header Info
@@ -108,7 +108,6 @@ print_header()
   printf("PID  |  Prime #  |  Status Info\n");
   printf("-------------------------------\n");
 }
-
 
 //Print PID and Prime Number
 void 
