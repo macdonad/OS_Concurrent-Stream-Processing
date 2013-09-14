@@ -13,6 +13,7 @@
 #include <string.h>
 
 // GLOBALS
+int debug = 1;
 int pid = 0;
 
 //PROTOTYPES
@@ -27,12 +28,40 @@ int
 main(int argc, char *argv[])
 {
   int i = 0;
-  printf("Total Number of Args: %d\n", argc);
+  int mode;
+  int limit = 0;
+  int number = 0;
+  if(debug){printf("Total Number of Args: %d\n", argc);}
   while(i < argc)
     {
-      printf("Args%d: %s\n", i, argv[i]);
+      if(debug){printf("Args%d: %s\n", i, argv[i]);}
+      if(strcmp(argv[i], "debug") == 0)
+	{
+	  debug = 1;
+	}
+
       i++;
     }
+  if(debug){printf("Debug = %d\n",debug);}
+  
+  printf("Generate primes to a limit(1) or generate a number(0) of primes: ");
+  scanf("%d", &mode);
+  if(debug){printf("Mode: %d\n",mode);}
+  if(mode == 0)
+    {
+      printf("Enter number of primes to generate: "); 
+      scanf("%d",&number);
+      if(debug){printf("Number: %d\n", number);}
+    }
+  else if(mode == 1)
+    {
+      printf("Enter limit to generate primes to: ");
+      scanf("%d",&limit);
+      if(debug){printf("Limit: %d\n", limit);}
+    }
+
+
+
   return 0;
 }
 
@@ -58,7 +87,7 @@ write_list()
 //Set up pipes with parent and child
 void 
 connect_pipes()
-{
+{/*
   if(pid < 0)
     {
       //error
@@ -72,7 +101,7 @@ connect_pipes()
     {
       //set up Parent connection
       write_list();
-    }
+      }*/
 }
 
 
