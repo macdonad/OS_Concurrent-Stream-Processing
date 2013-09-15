@@ -154,7 +154,7 @@ void
 found_prime(int prime, int me)
 {
   char str[MAX];
-
+  if(debug){printf("Entered Found Prime, Prime = %d, me = %d\n", prime, me);}
   if(pipe(fd) < 0)
     {
       perror("Its a Pipe Bomb!\n");
@@ -169,14 +169,21 @@ found_prime(int prime, int me)
   else if(pid > 0)
     {
       //Parent
+      printf("Parent , Prime : %d\n", prime);
       has_child = 1;
       dup2(fd[WRITE], STDOUT_FILENO);
       write (STDOUT_FILENO, &prime, sizeof(prime));
+      /* char *status = ""; */
+      /* sprintf(status,"Wrote To Pipe: ", prime);       */    
+      /* if(debug){print_status(pid, status);} */
+
+      //Think this is wrong, wont go and keep printing out list.
       read_pipe(me);
     }
   else
     {
       //Child
+      printf("Child , Prime : %d\n", prime);
       has_child = 0;
       dup2(fd[READ], STDIN_FILENO);
       read(STDIN_FILENO, &my_num, sizeof(my_num));
