@@ -27,6 +27,8 @@ int mode;
 int limit = 0;
 int number = 0;
 int my_num = 2;
+int has_child = 0;
+int fd[2];
 
 //PROTOTYPES
 
@@ -37,8 +39,8 @@ void generate_limit(int);
 void print_header();
 void print_prime(int, int);
 void print_status(int, char*);
-void found_prime(int);
-
+void found_prime(int, int);
+void read_pipe(int);
 
 //Prompt user for mode
 //user debug command line arg to see statuses
@@ -117,7 +119,7 @@ generate_limit(int limit)
       if(num % my_num != 0)
 	{
 	  if(debug){printf("Next prime: %d\n", num);}
-	  found_prime(num);
+	  found_prime(num, my_num);
 	}
       num++;
     }
@@ -149,9 +151,8 @@ print_status(int pid, char* status)
 //Found next prime
 //Spawn new process and set up pipe
 void
-found_prime(int prime)
+found_prime(int prime, int me)
 {
-  int fd[2];
   char str[MAX];
 
   if(pipe(fd) < 0)
@@ -168,21 +169,55 @@ found_prime(int prime)
   else if(pid > 0)
     {
       //Parent
+      has_child = 1;
       dup2(fd[WRITE], STDOUT_FILENO);
       write (STDOUT_FILENO, &prime, sizeof(prime));
-      close(fd[READ]);
-      close(fd[WRITE]);
+      read_pipe(me);
     }
   else
     {
       //Child
+      has_child = 0;
       dup2(fd[READ], STDIN_FILENO);
       read(STDIN_FILENO, &my_num, sizeof(my_num));
       pid = getpid();
       print_prime(pid, my_num);
       if(debug){print_status(pid, "Printing Prime");}
-      close(fd[READ]);
-      close(fd[WRITE]);
-      exit(0);
+      read_pipe(my_num);
     }
+}
+
+//Read Pipe until reach the end
+void 
+read_pipe(int my_prime)
+{
+  int done = 0;
+  pid = getpid();
+  while(!done)
+    {
+      read(STDIN_FILENO, &my_num, sizeof(my_num));
+      char *status = "";
+      sprintf(status,"Read in: ", my_num);
+      if(debug){print_status(pid, status);}
+      
+      if(my_num = 0)
+	{
+	  done = 1;
+	}
+      else if(my_num % my_prime != 0)
+	{
+	  found_prime(my_num, my_prime);
+	}      
+    } 
+  // Let child know to close
+  if(has_child)
+    {
+      write (STDOUT_FILENO, &my_num, sizeof(my_num));
+    }
+  // Close fds
+  if(debug){print_status(pid, "Closing");}
+  close(fd[READ]);
+  close(fd[WRITE]);
+  // exit
+  exit(0);
 }
