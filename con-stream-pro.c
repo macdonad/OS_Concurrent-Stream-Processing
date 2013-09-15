@@ -7,10 +7,18 @@
   
   Author: Doug Macdonald
 
+  Commands:
+    debug : shows extra print outs
 */
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
 #include <string.h>
+
+#define READ 0
+#define WRITE 1
+#define MAX 1024
 
 // GLOBALS
 int debug = 0;
@@ -18,6 +26,7 @@ int pid = 0;
 int mode;
 int limit = 0;
 int number = 0;
+int my_num = 2;
 
 //PROTOTYPES
 
@@ -28,6 +37,8 @@ void generate_limit(int);
 void print_header();
 void print_prime(int, int);
 void print_status(int, char*);
+void found_prime(int);
+
 
 //Prompt user for mode
 //user debug command line arg to see statuses
@@ -97,8 +108,19 @@ generate_limit(int limit)
   if(debug){printf("Limit: %d\n", limit);}
   print_header();
   pid = getpid();
-  print_prime(pid, 2);
-  print_status(pid, "Found Prime");
+  print_prime(pid, my_num);
+  if(debug){print_status(pid, "Found Prime");}
+
+  int num = my_num + 1;
+  while(num <= limit)
+    {
+      if(num % my_num != 0)
+	{
+	  if(debug){printf("Next prime: %d\n", num);}
+	  found_prime(num);
+	}
+      num++;
+    }
 }
 
 //Print Header Info
@@ -122,4 +144,45 @@ void
 print_status(int pid, char* status)
 {
   if(debug){printf("%d\t\t\t%s\n",pid, status);}
+}
+
+//Found next prime
+//Spawn new process and set up pipe
+void
+found_prime(int prime)
+{
+  int fd[2];
+  char str[MAX];
+
+  if(pipe(fd) < 0)
+    {
+      perror("Its a Pipe Bomb!\n");
+      exit(1);
+    }
+
+  if((pid = fork()) < 0)
+    {
+      perror("Child Bearing Issue\n");
+      exit(1);
+    }
+  else if(pid > 0)
+    {
+      //Parent
+      dup2(fd[WRITE], STDOUT_FILENO);
+      write (STDOUT_FILENO, &prime, sizeof(prime));
+      close(fd[READ]);
+      close(fd[WRITE]);
+    }
+  else
+    {
+      //Child
+      dup2(fd[READ], STDIN_FILENO);
+      read(STDIN_FILENO, &my_num, sizeof(my_num));
+      pid = getpid();
+      print_prime(pid, my_num);
+      if(debug){print_status(pid, "Printing Prime");}
+      close(fd[READ]);
+      close(fd[WRITE]);
+      exit(0);
+    }
 }
