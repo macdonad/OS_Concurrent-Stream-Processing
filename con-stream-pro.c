@@ -29,6 +29,7 @@ int number = 0;
 int my_num = 2;
 int has_child = 0;
 int fd[2];
+int im_number_one = 1;
 
 //PROTOTYPES
 
@@ -41,6 +42,7 @@ void print_prime(int, int);
 void print_status(int, char*);
 void found_prime(int, int);
 void read_pipe(int);
+void generate_list_for_limit(int);
 
 //Prompt user for mode
 //user debug command line arg to see statuses
@@ -125,6 +127,21 @@ generate_limit(int limit)
     }
 }
 
+//Generate List from last found prime
+void
+generate_list_for_limit(int num)
+{
+ while(num <= limit)
+    {
+      if(num % my_num != 0)
+	{
+	  if(debug){printf("Next prime: %d\n", num);}
+	  found_prime(num, my_num);
+	}
+      num++;
+    }
+}
+
 //Print Header Info
 void 
 print_header()
@@ -173,18 +190,21 @@ found_prime(int prime, int me)
       has_child = 1;
       dup2(fd[WRITE], STDOUT_FILENO);
       write (STDOUT_FILENO, &prime, sizeof(prime));
-      /* char *status = ""; */
-      /* sprintf(status,"Wrote To Pipe: ", prime);       */    
-      /* if(debug){print_status(pid, status);} */
-
-      //Think this is wrong, wont go and keep printing out list.
-      read_pipe(me);
+      if(im_number_one)
+	{
+	  generate_list_for_limit(prime);
+	}
+      else
+	{
+	  read_pipe(me);
+	}
     }
   else
     {
       //Child
       printf("Child , Prime : %d\n", prime);
       has_child = 0;
+      im_number_one = 0;
       dup2(fd[READ], STDIN_FILENO);
       read(STDIN_FILENO, &my_num, sizeof(my_num));
       pid = getpid();
