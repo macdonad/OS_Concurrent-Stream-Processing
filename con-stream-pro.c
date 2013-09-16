@@ -109,18 +109,18 @@ generate_number(int number)
 void 
 generate_limit(int limit)
 {
-  if(debug){printf("Limit: %d\n", limit);}
+  /* if(debug){printf("Limit: %d\n", limit);} */
   print_header();
   pid = getpid();
   print_prime(pid, my_num);
-  if(debug){print_status(pid, "Found Prime");}
+  /* if(debug){print_status(pid, "Found Prime");} */
 
   int num = my_num + 1;
   while(num <= limit)
     {
       if(num % my_num != 0)
 	{
-	  if(debug){printf("Next prime: %d\n", num);}
+	  /* if(debug){printf("Next prime: %d\n", num);} */
 	  found_prime(num, my_num);
 	}
       num++;
@@ -131,15 +131,21 @@ generate_limit(int limit)
 void
 generate_list_for_limit(int num)
 {
+  /* if(debug){print_status(pid, "Generating list");} */
  while(num <= limit)
     {
       if(num % my_num != 0)
 	{
-	  if(debug){printf("Next prime: %d\n", num);}
-	  found_prime(num, my_num);
-	}
+	  /* if(debug){printf("Next prime: %d\n", num);} */
+	  write (STDOUT_FILENO, &num, sizeof(num));
+       }
       num++;
     }
+ /* if(debug){print_status(pid, "Reached Limit");} */
+ num = 0;
+ write (STDOUT_FILENO, &num, sizeof(num));
+
+ close(fd[WRITE]);
 }
 
 //Print Header Info
@@ -170,8 +176,7 @@ print_status(int pid, char* status)
 void
 found_prime(int prime, int me)
 {
-  char str[MAX];
-  if(debug){printf("Entered Found Prime, Prime = %d, me = %d\n", prime, me);}
+  /* if(debug){printf("Entered Found Prime, Prime = %d, me = %d\n", prime, me);}   */
   if(pipe(fd) < 0)
     {
       perror("Its a Pipe Bomb!\n");
@@ -186,30 +191,32 @@ found_prime(int prime, int me)
   else if(pid > 0)
     {
       //Parent
-      printf("Parent , Prime : %d\n", prime);
+      /* if(debug){printf("Parent , Prime : %d\n", prime);} */
       has_child = 1;
       dup2(fd[WRITE], STDOUT_FILENO);
       write (STDOUT_FILENO, &prime, sizeof(prime));
       if(im_number_one)
 	{
+	  /* if(debug){printf("Parent to generate list\n");} */
 	  generate_list_for_limit(prime);
 	}
       else
 	{
+	  /* if(debug){printf("Read Pipe\n");} */
 	  read_pipe(me);
 	}
     }
   else
     {
       //Child
-      printf("Child , Prime : %d\n", prime);
+      /* if(debug){printf("Child , Prime : %d\n", prime);} */
       has_child = 0;
       im_number_one = 0;
       dup2(fd[READ], STDIN_FILENO);
       read(STDIN_FILENO, &my_num, sizeof(my_num));
       pid = getpid();
       print_prime(pid, my_num);
-      if(debug){print_status(pid, "Printing Prime");}
+      /* if(debug){print_status(pid, "Printing Prime");} */
       read_pipe(my_num);
     }
 }
@@ -219,30 +226,35 @@ void
 read_pipe(int my_prime)
 {
   int done = 0;
+  int read_num;
   pid = getpid();
+  print_status(pid, "Reading Pipe");
   while(!done)
     {
-      read(STDIN_FILENO, &my_num, sizeof(my_num));
-      char *status = "";
-      sprintf(status,"Read in: ", my_num);
-      if(debug){print_status(pid, status);}
+      print_status(pid, "In Loop");
+      /* if(debug){print_status(pid, "reading");} */
+      int test = read(STDIN_FILENO, &read_num, sizeof(read_num));
+      char status[16];
+      sprintf(status,"Read in: %d", read_num);
+      /* if(debug){print_status(pid, status);} */
       
-      if(my_num = 0)
+      if(read_num == 0)
 	{
 	  done = 1;
 	}
-      else if(my_num % my_prime != 0)
+      else if(read_num % my_prime != 0)
 	{
-	  found_prime(my_num, my_prime);
+	  found_prime(read_num, my_prime);
 	}      
     } 
   // Let child know to close
   if(has_child)
     {
-      write (STDOUT_FILENO, &my_num, sizeof(my_num));
+      /* if(debug){print_status(pid, "Tell Child to close");} */
+      write (STDOUT_FILENO, &read_num, sizeof(read_num));
     }
   // Close fds
-  if(debug){print_status(pid, "Closing");}
+  /* if(debug){print_status(pid, "Closing");} */
   close(fd[READ]);
   close(fd[WRITE]);
   // exit
