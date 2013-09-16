@@ -194,6 +194,8 @@ found_prime(int prime, int me)
       /* if(debug){printf("Parent , Prime : %d\n", prime);} */
       has_child = 1;
       dup2(fd[WRITE], STDOUT_FILENO);
+      close(fd[READ]);
+      close(fd[WRITE]);
       write (STDOUT_FILENO, &prime, sizeof(prime));
       if(im_number_one)
 	{
@@ -213,6 +215,8 @@ found_prime(int prime, int me)
       has_child = 0;
       im_number_one = 0;
       dup2(fd[READ], STDIN_FILENO);
+      close(fd[READ]);
+      close(fd[WRITE]);
       read(STDIN_FILENO, &my_num, sizeof(my_num));
       pid = getpid();
       print_prime(pid, my_num);
