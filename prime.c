@@ -167,6 +167,7 @@ void continue_limit(int currentNumber)
 	      perror("Child Write Failed\n");
 	      exit(1);	      
 	    }	  
+	  if(debug){print_info(pid, num, "Write");}
 	  child_read(fd[READ], fd[WRITE], pid);
 	}
     }
@@ -220,8 +221,8 @@ void child_Stuff(int pread, int pwrite, int ppid)
 	}
     }
   pid = getpid();
-  printf("Limit Reached\n");
-  printf("%d Child Closing\n", pid);
+  print_info(pid, 0, "Limit Reached");
+  print_info(pid, 0, "Closing");
   exit(EXIT_SUCCESS);
 }
 
@@ -273,7 +274,7 @@ void child_read(int pread, int pwrite, int ppid)
 
   wait(NULL);
   pid = getpid();
-  printf("%d Child Closing\n", pid);
+  print_info(pid, 0, "Closing");
   exit(EXIT_SUCCESS);
 }
 
@@ -313,7 +314,7 @@ void generate_to_limit(int pread, int pwrite, int ppid)
 
   wait(NULL);
   pid = getpid();
-  printf("%d Parent Closing\n", pid);
+  print_info(pid, 0, "Parent Closing");
   exit(EXIT_SUCCESS);
 }
 
