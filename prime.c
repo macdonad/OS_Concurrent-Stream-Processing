@@ -25,6 +25,8 @@ void prompt_user();
 void start_limit();
 void print_header();
 void print_info(int, int, char*);
+void generate_to_limit(int, int, int);
+void child_Stuff(int, int, int);
 
 int BUF_SIZE = 4;
 int debug;
@@ -68,7 +70,7 @@ void prompt_user()
       scanf("%d",&limit);
       //Handle Generating Limit
       print_header();
-      print_info(0, limit, "Limit");
+      //      print_info(0, limit, "Limit");
       start_limit();
     }
 }
@@ -77,8 +79,6 @@ void start_limit()
 {
   int pid = getpid();
   int fd[2];
-  int buf;
-  ssize_t numRead;
 
   if(3 <= limit)
     {
@@ -97,104 +97,103 @@ void start_limit()
       //Child
       else if(!pid)
 	{
-	  if(close(fd[WRITE]) < 0)
-	    {
-	      perror("Child Write Failed To Close.");
-	      exit(1);
-	    }
-
-	  while(1)
-	    {
-	      numRead = read(fd[READ], &buf, sizeof(buf));
-	      if(numRead < 0)
-		{
-		  perror("Child Read Error\n");
-		  exit(1);
-		}
-	      if(numRead == 0)
-		{
-		  //Reached Limit Stop Reading
-		  break;
-		}
-	      if(write(STDOUT_FILENO, &buf, numRead) != numRead)
-		{
-		  perror("Child Write Failed\n");
-		  exit(1);
-		}	      
-	      printf("Num Read = %d\n", buf);
-	    }
-	  write(STDOUT_FILENO, "\n", 1);
-	  if(close(fd[READ] < 0))
-	    {
-	      perror("Child Read Failed To Close\n");
-	      exit(1);
-	    }
 	  pid = getpid();
-	  printf("%d Child Closing\n", pid);
-	  exit(EXIT_SUCCESS);
+	  child_Stuff(fd[READ], fd[WRITE], pid);
 	}
       else
         {
-	  if(close(fd[READ]) < 0)
-	    {
-	      perror("Parent Read Failed To Close\n");
-	      exit(1);
-	    }
-	  int count = 5;
-	  BUF_SIZE = sizeof(count);
-	  if(write(fd[WRITE], &count, BUF_SIZE) != BUF_SIZE)
-	    {
-	      perror("Parent Failed On Write\n");
-	      exit(1);
-	    }
-	  count = 4;
-	  BUF_SIZE = sizeof(count);
-	  if(write(fd[WRITE], &count, BUF_SIZE) != BUF_SIZE)
-	    {
-	      perror("Parent Failed On Write\n");
-	      exit(1);
-	    }
-	  count = 3;
-	  BUF_SIZE = sizeof(count);
-	  if(write(fd[WRITE], &count, BUF_SIZE) != BUF_SIZE)
-	    {
-	      perror("Parent Failed On Write\n");
-	      exit(1);
-	    }
-	  count = 2;
-	  BUF_SIZE = sizeof(count);
-	  if(write(fd[WRITE], &count, BUF_SIZE) != BUF_SIZE)
-	    {
-	      perror("Parent Failed On Write\n");
-	      exit(1);
-	    }
-	  count = 1;
-	  BUF_SIZE = sizeof(count);
-	  if(write(fd[WRITE], &count, BUF_SIZE) != BUF_SIZE)
-	    {
-	      perror("Parent Failed On Write\n");
-	      exit(1);
-	    }
-	  count = 0;
-	  BUF_SIZE = sizeof(count);
-	  if(write(fd[WRITE], &count, BUF_SIZE) != BUF_SIZE)
-	    {
-	      perror("Parent Failed On Write\n");
-	      exit(1);
-	    }
-	  if(close(fd[WRITE]) < 0)
-	    {
-	      perror("Parent Write Failed To CLose\n");
-	      exit(1);
-	    }
-	  wait(NULL);
 	  pid = getpid();
-	  printf("%d Parent Closing\n", pid);
-	  exit(EXIT_SUCCESS);
+	  generate_to_limit(fd[READ], fd[WRITE], pid);
 	}
     }
 }
 
+void child_Stuff(int pread, int pwrite, int ppid)
+{
+  int fd[2];
+  fd[READ] = pread;
+  fd[WRITE] = pwrite;
+  int pid = ppid;
+  int buf = 10;
+  ssize_t numRead;
+
+  if(close(fd[WRITE]) < 0)
+    {
+      perror("Child Write Failed To Close.");
+      exit(1);
+    }
+  while(1)
+    {
+      numRead = read(fd[READ], &buf, sizeof(buf));
+      if(buf != '\n')
+	{
+	  print_info(pid, buf, "Read");
+	}
+      if(numRead < 0)
+	{
+	  perror("Child Read Error\n");
+	  exit(1);
+	}
+      if(numRead == 0)
+	{
+	  //Reached Limit Stop Reading
+	  break;
+	}
+      if(write(STDOUT_FILENO, &buf, numRead) != numRead)
+	{
+	  perror("Child Write Failed\n");
+	  exit(1);	      
+        }	      
+    }
+  write(STDOUT_FILENO, "\n", 1);
+  if(close(fd[READ] < 0))
+    {
+      perror("Child Read Failed To Close\n");
+      exit(1);
+    }
+  printf("%d Child Closing\n", pid);
+  exit(EXIT_SUCCESS);
+}
+
+void generate_to_limit(int pread, int pwrite, int ppid)
+{
+  int fd[2];
+  fd[READ] = pread;
+  fd[WRITE] = pwrite;
+  int pid = ppid;
+  if(close(fd[READ]) < 0)
+    {
+      perror("Parent Read Failed To Close\n");
+      exit(1);
+    }
+  int my_prime = 2;
+  int count = 2;
+  while(count <= limit)
+    {
+      if(count % my_prime != 0)
+	{
+	  print_info(pid, count, "Write");
+	  BUF_SIZE =  sizeof(count);
+	  if(write(fd[WRITE], &count, BUF_SIZE) != BUF_SIZE)
+	    {
+	      perror("Parent Failed On Write\n");
+	      exit(1);
+	    }
+	}
+      count++;
+    }
+
+  if(close(fd[WRITE]) < 0)
+    {
+      perror("Parent Write Failed To CLose\n");
+      exit(1);
+    }
+
+  wait(NULL);
+  pid = getpid();
+  printf("%d Parent Closing\n", pid);
+  exit(EXIT_SUCCESS);
+}
 
 void print_header()
 {
