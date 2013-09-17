@@ -36,6 +36,7 @@ int mode;
 int number;
 int limit;
 int fd[2];
+int pid;
 
 int main(int argc, char *argv[])
 {
@@ -94,7 +95,7 @@ void prompt_user()
 
 void start_limit()
 {
-  int pid = getpid();
+  pid = getpid();
 
   if(3 <= limit)
     {
@@ -127,7 +128,7 @@ void start_limit()
 
 void continue_limit(int currentNumber)
 {
-  int pid = getpid();
+  pid = getpid();
   int num = currentNumber;
 
   if(num <= limit)
@@ -163,7 +164,7 @@ void child_Stuff(int pread, int pwrite, int ppid)
 {
   fd[READ] = pread;
   fd[WRITE] = pwrite;
-  int pid = ppid;
+  pid = ppid;
   int buf = 10;
   ssize_t numRead;
   int my_prime = 0;
@@ -215,7 +216,7 @@ void child_read(int pread, int pwrite, int ppid)
 { 
   fd[READ] = pread;
   fd[WRITE] = pwrite;
-  int pid = ppid;
+  pid = ppid;
   int buf = 10;
   ssize_t numRead;
 
@@ -263,7 +264,7 @@ void generate_to_limit(int pread, int pwrite, int ppid)
 {
   fd[READ] = pread;
   fd[WRITE] = pwrite;
-  int pid = ppid;
+  pid = ppid;
   if(close(fd[READ]) < 0)
     {
       perror("Parent Read Failed To Close\n");
