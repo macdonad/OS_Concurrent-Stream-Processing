@@ -167,7 +167,7 @@ void generate_to_limit(int pread, int pwrite, int ppid)
       exit(1);
     }
   int my_prime = 2;
-  int count = 2;
+  int count = 3;
   while(count <= limit)
     {
       if(count % my_prime != 0)
