@@ -27,6 +27,8 @@ void print_header();
 void print_info(int, int, char*);
 void generate_to_limit(int, int, int);
 void child_Stuff(int, int, int);
+void handle_signals(int);
+void child_read(int, int, int);
 
 int BUF_SIZE = 4;
 int debug;
@@ -48,8 +50,22 @@ int main(int argc, char *argv[])
 	}
       i++;
     }
+  signal(SIGINT, handle_signals);
   prompt_user();
   return 0;
+}
+
+void handle_signals(int signal)
+{
+  switch(signal)
+    {
+    case SIGINT:
+      {
+	printf("\nReceiving Signal: Closing\n");
+	exit(0);
+	break;
+      }
+    }
 }
 
 void prompt_user()
@@ -107,6 +123,40 @@ void start_limit()
     }
 }
 
+void continue_limit(int currentNumber)
+{
+  int pid = getpid();
+  int fd[2];
+  int num = currentNumber;
+
+  if(num <= limit)
+    {
+      //Create Pipe
+      if(pipe(fd) < 0)
+	{
+	  perror("Pipe Burst\n");
+	  exit(1);
+	}
+      //Failed
+      if((pid = fork()) < 0)
+	{
+	  perror("Fork Failed\n");
+	  exit(1);
+	}
+      //Child
+      else if(!pid)
+	{
+	  pid = getpid();
+	  child_Stuff(fd[READ], fd[WRITE], pid);
+	}
+      else
+        {
+	  pid = getpid();
+	  child_read(fd[READ], fd[WRITE], pid);
+	}
+    }
+}
+
 void child_Stuff(int pread, int pwrite, int ppid)
 {
   int fd[2];
@@ -130,7 +180,32 @@ void child_Stuff(int pread, int pwrite, int ppid)
   if(buf != '\0')
     {
       print_info(pid, buf, "My Prime");
-    }	      
+    }	   
+  numRead = read(fd[READ], &buf, sizeof(buf));
+  if(numRead < 0)
+    {
+      perror("Child Read Error\n");
+      exit(1);
+    }
+  if(numRead == 0)
+    {
+      //Reached Limit Stop Reading      
+    }
+  if(buf != '\0')
+    {
+      print_info(pid, buf, "Read");
+    }
+  continue_limit(buf);
+}
+
+void child_read(int pread, int pwrite, int ppid)
+{ 
+  int fd[2];
+  fd[READ] = pread;
+  fd[WRITE] = pwrite;
+  int pid = ppid;
+  int buf = 10;
+  ssize_t numRead;
 
   while(1)
     {
@@ -149,13 +224,12 @@ void child_Stuff(int pread, int pwrite, int ppid)
 	{
 	  print_info(pid, buf, "Read");
 	}
-      if(write(STDOUT_FILENO, &buf, numRead) != numRead)
+      if(write(fd[WRITE], &buf, numRead) != numRead)
 	{
 	  perror("Child Write Failed\n");
 	  exit(1);	      
         }	      
     }
-  write(STDOUT_FILENO, "\n", 1);
   if(close(fd[READ] < 0))
     {
       perror("Child Read Failed To Close\n");
