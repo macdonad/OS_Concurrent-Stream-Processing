@@ -1,0 +1,91 @@
+/*
+  Operation Systems
+  Prof. Wolffe
+
+  Program 1:
+  Concurrent Stream Processing
+
+  Author: Doug MacDonald
+
+  Commands:
+    debug : Shows extra print outs
+ */
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
+
+#define READ 0
+#define WRITE 1
+#define MAX 1024
+
+void prompt_user();
+void start_limit();
+void print_header();
+void print_info(int, int, char*);
+
+
+int debug;
+int mode;
+int number;
+int limit;
+
+
+int main(int argc, char *argv[])
+{
+  int i = 0;
+  debug = 0;
+
+  while(i < argc)
+    {
+      if(strcmp(argv[i], "debug") == 0)
+	{
+	  debug = 1;
+	}
+      i++;
+    }
+  prompt_user();
+  return 0;
+}
+
+void prompt_user()
+{
+  printf("Generate primes to a limit(1) or generate a number(0) of primes: ");
+  scanf("%d", &mode);
+  number = 0;
+  limit = 0;
+  if(mode == 0)
+    {
+      printf("Enter number of primes to generate: ");
+      scanf("%d", &number);
+      //Handle Generating Number
+    }
+  else if(mode == 1)
+    {
+      printf("Enter limit to generate primes to: ");
+      scanf("%d",&limit);
+      //Handle Generating Limit
+      print_header();
+      print_info(1,2,"test");
+      start_limit();
+    }
+}
+
+void start_limit()
+{
+  int pid = getpid();
+  pid  = pid + 1;
+
+}
+
+void print_header()
+{
+  printf(" PID  |  Prime #  |  Status/Info  \n");
+  printf("----------------------------------\n");
+}
+
+void print_info(int pid, int prime, char* status)
+{
+  printf("%d\t%d\t\t%s\n",pid, prime, status);
+}
