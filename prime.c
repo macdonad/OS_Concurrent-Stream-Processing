@@ -121,13 +121,13 @@ void child_Stuff(int pread, int pwrite, int ppid)
       perror("Child Write Failed To Close.");
       exit(1);
     }
+  //int i = 0;
   while(1)
     {
+      //i++;
       numRead = read(fd[READ], &buf, sizeof(buf));
-      if(buf != '\n')
-	{
-	  print_info(pid, buf, "Read");
-	}
+      //printf("");
+      //i = 0;
       if(numRead < 0)
 	{
 	  perror("Child Read Error\n");
@@ -137,6 +137,10 @@ void child_Stuff(int pread, int pwrite, int ppid)
 	{
 	  //Reached Limit Stop Reading
 	  break;
+	}
+      if(buf != '\0')
+	{
+	  print_info(pid, buf, "Read");
 	}
       if(write(STDOUT_FILENO, &buf, numRead) != numRead)
 	{
