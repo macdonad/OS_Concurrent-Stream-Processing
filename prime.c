@@ -162,6 +162,11 @@ void continue_limit(int currentNumber)
 	  signal(SIGINT, handle_signals);	  
 	  pid = getpid();
 	  fd[WRITE] = tempfd[WRITE];
+	  if(write(fd[WRITE], &num, sizeof(num))< 0)
+	    {
+	      perror("Child Write Failed\n");
+	      exit(1);	      
+	    }	  
 	  child_read(fd[READ], fd[WRITE], pid);
 	}
     }
@@ -210,7 +215,7 @@ void child_Stuff(int pread, int pwrite, int ppid)
 	  if(debug){print_info(pid, buf, "Read");}
 	}
       if(buf % my_prime != 0)
-	{
+	{	  
 	  continue_limit(buf);	  
 	}
     }
