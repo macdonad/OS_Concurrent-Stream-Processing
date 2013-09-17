@@ -19,7 +19,6 @@
 #define READ 0
 #define WRITE 1
 #define MAX 1024
-//#define BUF_SIZE 4
 
 void prompt_user();
 void start_limit();
@@ -121,13 +120,9 @@ void child_Stuff(int pread, int pwrite, int ppid)
       perror("Child Write Failed To Close.");
       exit(1);
     }
-  //int i = 0;
   while(1)
     {
-      //i++;
       numRead = read(fd[READ], &buf, sizeof(buf));
-      //printf("");
-      //i = 0;
       if(numRead < 0)
 	{
 	  perror("Child Read Error\n");
