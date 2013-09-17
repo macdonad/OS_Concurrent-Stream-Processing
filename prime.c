@@ -35,7 +35,7 @@ int debug;
 int mode;
 int number;
 int limit;
-
+int fd[2];
 
 int main(int argc, char *argv[])
 {
@@ -62,6 +62,8 @@ void handle_signals(int signal)
     case SIGINT:
       {
 	printf("\nReceiving Signal: Closing\n");
+	close(fd[READ]);
+	close(fd[WRITE]);
 	exit(0);
 	break;
       }
@@ -93,7 +95,6 @@ void prompt_user()
 void start_limit()
 {
   int pid = getpid();
-  int fd[2];
 
   if(3 <= limit)
     {
@@ -127,7 +128,6 @@ void start_limit()
 void continue_limit(int currentNumber)
 {
   int pid = getpid();
-  int fd[2];
   int num = currentNumber;
 
   if(num <= limit)
@@ -161,7 +161,6 @@ void continue_limit(int currentNumber)
 
 void child_Stuff(int pread, int pwrite, int ppid)
 {
-  int fd[2];
   fd[READ] = pread;
   fd[WRITE] = pwrite;
   int pid = ppid;
@@ -214,7 +213,6 @@ void child_Stuff(int pread, int pwrite, int ppid)
 
 void child_read(int pread, int pwrite, int ppid)
 { 
-  int fd[2];
   fd[READ] = pread;
   fd[WRITE] = pwrite;
   int pid = ppid;
@@ -263,7 +261,6 @@ void child_read(int pread, int pwrite, int ppid)
 
 void generate_to_limit(int pread, int pwrite, int ppid)
 {
-  int fd[2];
   fd[READ] = pread;
   fd[WRITE] = pwrite;
   int pid = ppid;
