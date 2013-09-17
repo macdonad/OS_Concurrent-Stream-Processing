@@ -165,37 +165,46 @@ void child_Stuff(int pread, int pwrite, int ppid)
   int pid = ppid;
   int buf = 10;
   ssize_t numRead;
-
+  int my_prime = 0;
   if(close(fd[WRITE]) < 0)
     {
       perror("Child Write Failed To Close.");
       exit(1);
     }
-  numRead = read(fd[READ], &buf, sizeof(buf));
-  if(numRead < 0)
-    {
-      perror("Child Read Error\n");
-      exit(1);
+   numRead = read(fd[READ], &buf, sizeof(buf));
+   if(numRead < 0)
+     {
+       perror("Child Read Error\n");
+       exit(1);
+     }
+   if(buf != '\0')
+     {
+       print_info(pid, buf, "My Prime");
+       my_prime = buf;
+     }
+  while(1)
+    {     	   
+      numRead = read(fd[READ], &buf, sizeof(buf));
+      if(numRead < 0)
+	{
+	  perror("Child Read Error\n");
+	  exit(1);
+	}
+      if(numRead == 0)
+	{
+	  //Reached Limit Stop Reading      
+	  break;
+	  //send signal or whatevs
+	}
+      if(buf != '\0')
+	{
+	  print_info(pid, buf, "Read");
+	}
+      if(buf % my_prime != 0)
+	{
+	  continue_limit(buf);	  
+	}
     }
-  if(buf != '\0')
-    {
-      print_info(pid, buf, "My Prime");
-    }	   
-  numRead = read(fd[READ], &buf, sizeof(buf));
-  if(numRead < 0)
-    {
-      perror("Child Read Error\n");
-      exit(1);
-    }
-  if(numRead == 0)
-    {
-      //Reached Limit Stop Reading      
-    }
-  if(buf != '\0')
-    {
-      print_info(pid, buf, "Read");
-    }
-  continue_limit(buf);
 }
 
 void child_read(int pread, int pwrite, int ppid)
