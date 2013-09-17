@@ -207,6 +207,9 @@ void child_Stuff(int pread, int pwrite, int ppid)
 	  continue_limit(buf);	  
 	}
     }
+  pid = getpid();
+  printf("%d Child Closing\n", pid);
+  exit(EXIT_SUCCESS);
 }
 
 void child_read(int pread, int pwrite, int ppid)
@@ -246,6 +249,14 @@ void child_read(int pread, int pwrite, int ppid)
       perror("Child Read Failed To Close\n");
       exit(1);
     }
+  if(close(fd[WRITE]) < 0)
+    {
+      perror("Child Write Failed To CLose\n");
+      exit(1);
+    }
+
+  wait(NULL);
+  pid = getpid();
   printf("%d Child Closing\n", pid);
   exit(EXIT_SUCCESS);
 }
