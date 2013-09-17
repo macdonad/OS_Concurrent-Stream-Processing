@@ -15,6 +15,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <sys/wait.h>
 
 #define READ 0
 #define WRITE 1
@@ -120,6 +121,17 @@ void child_Stuff(int pread, int pwrite, int ppid)
       perror("Child Write Failed To Close.");
       exit(1);
     }
+  numRead = read(fd[READ], &buf, sizeof(buf));
+  if(numRead < 0)
+    {
+      perror("Child Read Error\n");
+      exit(1);
+    }
+  if(buf != '\0')
+    {
+      print_info(pid, buf, "My Prime");
+    }	      
+
   while(1)
     {
       numRead = read(fd[READ], &buf, sizeof(buf));
@@ -165,6 +177,7 @@ void generate_to_limit(int pread, int pwrite, int ppid)
       exit(1);
     }
   int my_prime = 2;
+  print_info(pid, my_prime, "My Prime");
   int count = 3;
   while(count <= limit)
     {
