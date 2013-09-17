@@ -112,6 +112,7 @@ void start_limit()
       //Child
       else if(!pid)
 	{
+	  signal(SIGINT, handle_signals);
 	  pid = getpid();
 	  child_Stuff(fd[READ], fd[WRITE], pid);
 	}
@@ -151,6 +152,7 @@ void continue_limit(int currentNumber)
 	}
       else
         {
+	  signal(SIGINT, handle_signals);	  
 	  pid = getpid();
 	  child_read(fd[READ], fd[WRITE], pid);
 	}
