@@ -36,6 +36,7 @@ int mode;
 int number;
 int limit;
 int fd[2];
+int tempfd[2];
 int pid;
 
 int main(int argc, char *argv[])
@@ -100,7 +101,7 @@ void start_limit()
   if(3 <= limit)
     {
       //Create Pipe
-      if(pipe(fd) < 0)
+      if(pipe(tempfd) < 0)
 	{
 	  perror("Pipe Burst\n");
 	  exit(1);
@@ -116,11 +117,14 @@ void start_limit()
 	{
 	  signal(SIGINT, handle_signals);
 	  pid = getpid();
+	  fd[READ] = tempfd[READ];
+	  fd[WRITE] = tempfd[WRITE];
 	  child_Stuff(fd[READ], fd[WRITE], pid);
 	}
       else
         {
 	  pid = getpid();
+	  fd[WRITE] = tempfd[WRITE];
 	  generate_to_limit(fd[READ], fd[WRITE], pid);
 	}
     }
@@ -134,7 +138,7 @@ void continue_limit(int currentNumber)
   if(num <= limit)
     {
       //Create Pipe
-      if(pipe(fd) < 0)
+      if(pipe(tempfd) < 0)
 	{
 	  perror("Pipe Burst\n");
 	  exit(1);
@@ -149,12 +153,15 @@ void continue_limit(int currentNumber)
       else if(!pid)
 	{
 	  pid = getpid();
+	  fd[READ] = tempfd[READ];
+	  fd[WRITE] = tempfd[WRITE];
 	  child_Stuff(fd[READ], fd[WRITE], pid);
 	}
       else
         {
 	  signal(SIGINT, handle_signals);	  
 	  pid = getpid();
+	  fd[WRITE] = tempfd[WRITE];
 	  child_read(fd[READ], fd[WRITE], pid);
 	}
     }
@@ -200,7 +207,7 @@ void child_Stuff(int pread, int pwrite, int ppid)
 	}
       if(buf != '\0')
 	{
-	  print_info(pid, buf, "Read");
+	  if(debug){print_info(pid, buf, "Read");}
 	}
       if(buf % my_prime != 0)
 	{
@@ -208,6 +215,7 @@ void child_Stuff(int pread, int pwrite, int ppid)
 	}
     }
   pid = getpid();
+  printf("Limit Reached\n");
   printf("%d Child Closing\n", pid);
   exit(EXIT_SUCCESS);
 }
@@ -235,13 +243,17 @@ void child_read(int pread, int pwrite, int ppid)
 	}
       if(buf != '\0')
 	{
-	  print_info(pid, buf, "Read");
+	  if(debug){print_info(pid, buf, "Read");}
 	}
       if(write(fd[WRITE], &buf, numRead) != numRead)
 	{
 	  perror("Child Write Failed\n");
 	  exit(1);	      
-        }	      
+        }
+      else
+	{
+	  if(debug){print_info(pid, buf, "Write");}
+	}
     }
   if(close(fd[READ] < 0))
     {
@@ -277,7 +289,7 @@ void generate_to_limit(int pread, int pwrite, int ppid)
     {
       if(count % my_prime != 0)
 	{
-	  print_info(pid, count, "Write");
+	  if(debug){print_info(pid, count, "Write");}
 	  BUF_SIZE =  sizeof(count);
 	  if(write(fd[WRITE], &count, BUF_SIZE) != BUF_SIZE)
 	    {
