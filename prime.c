@@ -70,7 +70,6 @@ void prompt_user()
       scanf("%d",&limit);
       //Handle Generating Limit
       print_header();
-      //      print_info(0, limit, "Limit");
       start_limit();
     }
 }
