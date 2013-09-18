@@ -8,7 +8,8 @@
   Author: Doug MacDonald
 
   Commands:
-    debug : Shows extra print outs
+    -debug : Shows extra print outs, including reads and writes to pipe
+    -closes : Shows print outs of closes
  */
 
 #include <stdio.h>
@@ -42,18 +43,24 @@ int fd[2];
 int tempfd[2];
 int pid;
 pid_t parent_pid;
+int ShowCloses;
 
 int main(int argc, char *argv[])
 {
   parent_pid = getpid();
   int i = 0;
   debug = 0;
+  ShowCloses = 0;
 
   while(i < argc)
     {
-      if(strcmp(argv[i], "debug") == 0)
+      if(strcmp(argv[i], "-debug") == 0)
 	{
 	  debug = 1;
+	}
+      if(strcmp(argv[i], "-closes") == 0)
+	{
+	  ShowCloses = 1;
 	}
       i++;
     }
@@ -80,7 +87,7 @@ void handle_signals(int signal)
 	close(fd[WRITE]);
 	close(fd[READ]);
 	wait(NULL);
-	print_info(parent_pid, 0, "Closing");
+	if(ShowCloses){print_info(parent_pid, 0, "Closing");}
 	exit(0);
       }
     }
@@ -102,7 +109,7 @@ void prompt_user()
 	{
 	  print_header();
 	  print_info(pid, 2, "My Prime");
-	  print_info(pid, 0, "Closing");
+	  if(ShowCloses){print_info(pid, 0, "Closing");}
 	  exit(0);
 	}
       else if(number == 0)
@@ -126,7 +133,7 @@ void prompt_user()
 	{
 	  print_header();
 	  print_info(pid, 2, "My Prime");
-	  print_info(pid, 0, "Closing");
+	  if(ShowCloses){print_info(pid, 0, "Closing");}
 	  exit(0);
 	}
       else if (limit == 0)
@@ -140,6 +147,10 @@ void prompt_user()
 	  print_header();
 	  start_limit();
 	}
+    }
+  else
+    {
+      prompt_user();
     }
 }
 
@@ -251,7 +262,7 @@ void child_Stuff(int pread, int pwrite, int ppid)
 	   SEND_SIG(parent_pid, SIGUSR1);
 	   close(fd[READ]);
 	   printf("Number Reached: Closing\n");
-	   print_info(pid, 0, "Closing");
+	   if(ShowCloses){print_info(pid, 0, "Closing");}
 	   exit(EXIT_SUCCESS);
 	 }
      }
@@ -279,7 +290,7 @@ void child_Stuff(int pread, int pwrite, int ppid)
     }
   pid = getpid();
   print_info(pid, 0, "Limit Reached");
-  print_info(pid, 0, "Closing");
+  if(ShowCloses){print_info(pid, 0, "Closing");}
   exit(EXIT_SUCCESS);
 }
 
@@ -334,7 +345,7 @@ void child_read(int pread, int pwrite, int ppid)
 
   wait(NULL);
   pid = getpid();
-  print_info(pid, 0, "Closing");
+  if(ShowCloses){print_info(pid, 0, "Closing");}
   exit(EXIT_SUCCESS);
 }
 
@@ -378,7 +389,7 @@ void generate_to_limit(int pread, int pwrite, int ppid)
 
   wait(NULL);
   pid = getpid();
-  print_info(pid, 0, "Closing");
+  if(ShowCloses){print_info(pid, 0, "Closing");}
   exit(EXIT_SUCCESS);
 }
 
