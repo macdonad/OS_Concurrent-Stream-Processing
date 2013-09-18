@@ -62,6 +62,18 @@ int main(int argc, char *argv[])
 	{
 	  ShowCloses = 1;
 	}
+      if(strcmp(argv[i], "-help") == 0)
+	{
+	  printf("--------------------------------------\n");
+	  printf("- Welcome To Prime Number Generating -\n");
+	  printf("-                                    -\n");
+	  printf("-Options:                            -\n");
+	  printf("- -debug  : Shows Reads and Writes   -\n");
+	  printf("- -closes : Shows Process Closes     -\n");
+	  printf("- -help   : Shows this screen        -\n");
+	  printf("--------------------------------------\n");
+	  exit(0);
+	}
       i++;
     }
   signal(SIGINT, handle_signals);
