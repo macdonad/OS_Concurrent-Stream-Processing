@@ -105,6 +105,11 @@ void prompt_user()
 	  print_info(pid, 0, "Closing");
 	  exit(0);
 	}
+      else if(number == 0)
+	{
+	  print_header();
+	  exit(0);
+	}
       else
 	{
 	  number--;
@@ -122,6 +127,11 @@ void prompt_user()
 	  print_header();
 	  print_info(pid, 2, "My Prime");
 	  print_info(pid, 0, "Closing");
+	  exit(0);
+	}
+      else if (limit == 0)
+	{
+	  print_header();
 	  exit(0);
 	}
       else
@@ -340,7 +350,6 @@ void generate_to_limit(int pread, int pwrite, int ppid)
     }
   my_prime = 2;
   print_info(pid, my_prime, "My Prime");
-  number--;
   if(number <= 0)
     {
       SEND_SIG(parent_pid, SIGUSR1);
