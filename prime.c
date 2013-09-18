@@ -30,6 +30,7 @@ void child_Stuff(int, int, int);
 void handle_signals(int);
 void child_read(int, int, int);
 
+int my_prime;
 int BUF_SIZE = 4;
 int debug;
 int mode;
@@ -180,7 +181,7 @@ void child_Stuff(int pread, int pwrite, int ppid)
   pid = ppid;
   int buf = 10;
   ssize_t numRead;
-  int my_prime = 0;
+  
   if(close(fd[WRITE]) < 0)
     {
       perror("Child Write Failed To Close.");
@@ -251,14 +252,17 @@ void child_read(int pread, int pwrite, int ppid)
 	{
 	  if(debug){print_info(pid, buf, "Read");}
 	}
-      if(write(fd[WRITE], &buf, numRead) != numRead)
+      if(buf % my_prime != 0)
 	{
-	  perror("Child Write Failed\n");
-	  exit(1);	      
-        }
-      else
-	{
-	  if(debug){print_info(pid, buf, "Write");}
+	  if(write(fd[WRITE], &buf, numRead) != numRead)
+	    {
+	      perror("Child Write Failed\n");
+	      exit(1);	      
+	    }
+	  else
+	    {
+	      if(debug){print_info(pid, buf, "Write");}
+	    }
 	}
     }
   if(close(fd[READ] < 0))
@@ -288,7 +292,7 @@ void generate_to_limit(int pread, int pwrite, int ppid)
       perror("Parent Read Failed To Close\n");
       exit(1);
     }
-  int my_prime = 2;
+  my_prime = 2;
   print_info(pid, my_prime, "My Prime");
   int count = 3;
   while(count <= limit)
