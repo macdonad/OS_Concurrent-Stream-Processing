@@ -92,23 +92,44 @@ void prompt_user()
   scanf("%d", &mode);
   number = 0;
   limit = 0;
+  pid = getpid();
   if(mode == 0)
     {
       printf("Enter number of primes to generate: ");
       scanf("%d", &number);
       //Handle Generating Number
-      number--;
-      limit = 0;
-      print_header();
-      start_limit();
+      if(number == 1)
+	{
+	  print_header();
+	  print_info(pid, 2, "My Prime");
+	  print_info(pid, 0, "Closing");
+	  exit(0);
+	}
+      else
+	{
+	  number--;
+	  print_header();
+	  start_limit();
+	}
     }
   else if(mode == 1)
     {
       printf("Enter Limit To Generate Primes To: ");
       scanf("%d",&limit);
       //Handle Generating Limit
-      print_header();
-      start_limit();
+      if(limit == 2)
+	{
+	  print_header();
+	  print_info(pid, 2, "My Prime");
+	  print_info(pid, 0, "Closing");
+	  exit(0);
+	}
+      else
+	{
+	  number = 1000;
+	  print_header();
+	  start_limit();
+	}
     }
 }
 
@@ -116,7 +137,7 @@ void start_limit()
 {
   pid = getpid();
 
-  if(3 <= limit || limit == 0)
+  if(2 <= limit || limit == 0)
     {
       //Create Pipe
       if(pipe(tempfd) < 0)
@@ -219,7 +240,7 @@ void child_Stuff(int pread, int pwrite, int ppid)
 	 {
 	   SEND_SIG(parent_pid, SIGUSR1);
 	   close(fd[READ]);
-	   printf("Reached Number: Closing\n");
+	   printf("Number Reached: Closing\n");
 	   print_info(pid, 0, "Closing");
 	   exit(EXIT_SUCCESS);
 	 }
@@ -348,7 +369,7 @@ void generate_to_limit(int pread, int pwrite, int ppid)
 
   wait(NULL);
   pid = getpid();
-  print_info(pid, 0, "Parent Closing");
+  print_info(pid, 0, "Closing");
   exit(EXIT_SUCCESS);
 }
 
