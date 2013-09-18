@@ -16,10 +16,12 @@
 #include <unistd.h>
 #include <string.h>
 #include <sys/wait.h>
+#include <signal.h>
 
 #define READ 0
 #define WRITE 1
 #define MAX 1024
+#define SEND_SIG(pid, sig) kill(pid, sig)
 
 void prompt_user();
 void start_limit();
@@ -39,9 +41,11 @@ int limit;
 int fd[2];
 int tempfd[2];
 int pid;
+pid_t parent_pid;
 
 int main(int argc, char *argv[])
 {
+  parent_pid = getpid();
   int i = 0;
   debug = 0;
 
@@ -54,6 +58,7 @@ int main(int argc, char *argv[])
       i++;
     }
   signal(SIGINT, handle_signals);
+  signal(SIGUSR1, handle_signals);
   prompt_user();
   return 0;
 }
@@ -70,6 +75,14 @@ void handle_signals(int signal)
 	exit(0);
 	break;
       }
+    case SIGUSR1:
+      {
+	close(fd[WRITE]);
+	close(fd[READ]);
+	wait(NULL);
+	print_info(parent_pid, 0, "Closing");
+	exit(0);
+      }
     }
 }
 
@@ -84,10 +97,14 @@ void prompt_user()
       printf("Enter number of primes to generate: ");
       scanf("%d", &number);
       //Handle Generating Number
+      number--;
+      limit = 0;
+      print_header();
+      start_limit();
     }
   else if(mode == 1)
     {
-      printf("Enter limit to generate primes to: ");
+      printf("Enter Limit To Generate Primes To: ");
       scanf("%d",&limit);
       //Handle Generating Limit
       print_header();
@@ -99,7 +116,7 @@ void start_limit()
 {
   pid = getpid();
 
-  if(3 <= limit)
+  if(3 <= limit || limit == 0)
     {
       //Create Pipe
       if(pipe(tempfd) < 0)
@@ -136,7 +153,7 @@ void continue_limit(int currentNumber)
   pid = getpid();
   int num = currentNumber;
 
-  if(num <= limit)
+  if(num <= limit || limit == 0)
     {
       //Create Pipe
       if(pipe(tempfd) < 0)
@@ -195,8 +212,17 @@ void child_Stuff(int pread, int pwrite, int ppid)
      }
    if(buf != '\0')
      {
+       number--;
        print_info(pid, buf, "My Prime");
        my_prime = buf;
+       if(number <= 0)
+	 {
+	   SEND_SIG(parent_pid, SIGUSR1);
+	   close(fd[READ]);
+	   printf("Reached Number: Closing\n");
+	   print_info(pid, 0, "Closing");
+	   exit(EXIT_SUCCESS);
+	 }
      }
   while(1)
     {     	   
@@ -210,7 +236,6 @@ void child_Stuff(int pread, int pwrite, int ppid)
 	{
 	  //Reached Limit Stop Reading      
 	  break;
-	  //send signal or whatevs
 	}
       if(buf != '\0')
 	{
@@ -294,8 +319,13 @@ void generate_to_limit(int pread, int pwrite, int ppid)
     }
   my_prime = 2;
   print_info(pid, my_prime, "My Prime");
+  number--;
+  if(number <= 0)
+    {
+      SEND_SIG(parent_pid, SIGUSR1);
+    }
   int count = 3;
-  while(count <= limit)
+  while(count <= limit || limit == 0)
     {
       if(count % my_prime != 0)
 	{
