@@ -51,6 +51,8 @@ int pid;
 pid_t parent_pid;
 int ShowCloses;
 
+
+//Read Args
 int main(int argc, char *argv[])
 {
   parent_pid = getpid();
@@ -156,11 +158,13 @@ void prompt_user()
 	}
       else if(number == 0)
 	{
+	  //No Primes to print, Print header and quit
 	  print_header();
 	  exit(0);
 	}
       else
 	{
+	  //Print Header and start finding primes
 	  number--;
 	  print_header();
 	  start_limit();
@@ -181,11 +185,13 @@ void prompt_user()
 	}
       else if (limit == 0)
 	{
+	  //No Primes to find, print header and quit
 	  print_header();
 	  exit(0);
 	}
       else
 	{
+	  //Start generating primes
 	  number = 1000;
 	  print_header();
 	  start_limit();
