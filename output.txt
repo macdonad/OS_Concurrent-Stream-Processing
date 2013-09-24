@@ -1,0 +1,136 @@
+Script started on Tue 24 Sep 2013 03:46:17 PM EDT
+[?1034h[eos12:~/src/OS/Program1/OS_Concurrent-Stream-Processing]$ ./prime
+Generate primes to a limit(1) or generate a number(0) of primes: 1
+Enter Limit To Generate Primes To: 12
+
+ PID  |  Prime #  |  Status/Info  
+----------------------------------
+26044	2		My Prime
+26045	3		My Prime
+26046	5		My Prime
+26047	7		My Prime
+26048	11		My Prime
+26048	0		Limit Reached
+[eos12:~/src/OS/Program1/OS_Concurrent-Stream-Processing]$ ./prime -closes
+*Showing Closes Activated*
+Generate primes to a limit(1) or generate a number(0) of primes: 0
+Enter number of primes to generate: 5
+
+ PID  |  Prime #  |  Status/Info  
+----------------------------------
+26049	2		My Prime
+26050	3		My Prime
+26051	5		My Prime
+26052	7		My Prime
+26053	11		My Prime
+Number Reached: Closing
+26053	 		Closing
+26052	 		Closing
+26051	 		Closing
+26050	 		Closing
+26049	 		Closing
+[eos12:~/src/OS/Program1/OS_Concurrent-Stream-Processing]$ ./prime -debug
+*Showing Reads and Writes Activated*
+Generate primes to a limit(1) or generate a number(0) of primes: 1
+Enter Limit To Generate Primes To: 10
+
+ PID  |  Prime #  |  Status/Info  
+----------------------------------
+26054	2		My Prime
+26054	3		Write
+26054	5		Write
+26054	7		Write
+26054	9		Write
+26055	3		My Prime
+26055	5		Read
+26055	5		Write
+26055	7		Read
+26055	7		Write
+26055	9		Read
+26056	5		My Prime
+26056	7		Read
+26056	7		Write
+26057	7		My Prime
+26057	0		Limit Reached
+[eos12:~/src/OS/Program1/OS_Concurrent-Stream-Processing]$ ./prime -help
+--------------------------------------
+- Welcome To Prime Number Generating -
+-                                    -
+-Options:                            -
+- -debug  : Shows Reads and Writes   -
+- -closes : Shows Process Closes     -
+- -help   : Shows this screen        -
+--------------------------------------
+[eos12:~/src/OS/Program1/OS_Concurrent-Stream-Processing]$ ./prime
+Generate primes to a limit(1) or generate a number(0) of primes: 0
+Enter number of primes to generate: 30
+
+ PID  |  Prime #  |  Status/Info  
+----------------------------------
+26059	2		My Prime
+26060	3		My Prime
+26061	5		My Prime
+26062	7		My Prime
+26063	11		My Prime
+26064	13		My Prime
+26065	17		My Prime
+26066	19		My Prime
+26067	23		My Prime
+26068	29		My Prime
+26069	31		My Prime
+26070	37		My Prime
+26071	41		My Prime
+26072	43		My Prime
+26073	47		My Prime
+26074	53		My Prime
+26075	59		My Prime
+26076	61		My Prime
+26077	67		My Prime
+26078	71		My Prime
+26079	73		My Prime
+26080	79		My Prime
+26081	83		My Prime
+26082	89		My Prime
+26083	97		My Prime
+26084	101		My Prime
+26085	103		My Prime
+26086	107		My Prime
+26087	109		My Prime
+26088	113		My Prime
+Number Reached: Closing
+[eos12:~/src/OS/Program1/OS_Concurrent-Stream-Processing]$ ./prime
+Generate primes to a limit(1) or generate a number(0) of primes: 1
+Enter Limit To Generate Primes To: 100
+
+ PID  |  Prime #  |  Status/Info  
+----------------------------------
+26089	2		My Prime
+26090	3		My Prime
+26091	5		My Prime
+26092	7		My Prime
+26093	11		My Prime
+26094	13		My Prime
+26095	17		My Prime
+26096	19		My Prime
+26097	23		My Prime
+26098	29		My Prime
+26099	31		My Prime
+26100	37		My Prime
+26101	41		My Prime
+26102	43		My Prime
+26103	47		My Prime
+26104	53		My Prime
+26105	59		My Prime
+26106	61		My Prime
+26107	67		My Prime
+26108	71		My Prime
+26109	73		My Prime
+26110	79		My Prime
+26111	83		My Prime
+26112	89		My Prime
+26113	97		My Prime
+26113	0		Limit Reached
+[eos12:~/src/OS/Program1/OS_Concurrent-Stream-Processing]$ exit
+exit
+
+Script done on Tue 24 Sep 2013 03:47:07 PM EDT
